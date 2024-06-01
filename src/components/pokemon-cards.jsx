@@ -1,27 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import "../styles/cards.css";
 
 function GeneratePokemonCards() {
   const [gameStart, setGameStart] = useState(false);
-  const [cardData, setCardData] = useState([]);
+  const [cardData, setCardData] = useState();
+  const [cardIds, setCardIds] = useState([]);
 
   function handleStartGame() {
     console.log("starting");
     let pokemonIds = Array.from({ length: 151 }, (_, index) => index + 1);
-    console.log(pokemonIds);
     const selectedNumber = parseInt(document.getElementById("card-count").value);
-    console.log(selectedNumber);
-    let tempCardData = [];
-    while (tempCardData.length != selectedNumber) {
+
+    let copiedCardIds = [];
+    for (let i = 0; i < selectedNumber; i++) {
       let pokemonId = Math.floor(Math.random() * pokemonIds.length);
-      tempCardData.push(pokemonIds[pokemonId]);
+      copiedCardIds.push(pokemonIds[pokemonId]);
+      // setCardIds([...cardIds, pokemonIds[pokemonId]]);
+      // console.log(pokemonIds[pokemonId]);
       pokemonIds.splice(pokemonId, 1);
     }
-    console.log(pokemonIds);
-    console.log(tempCardData);
-    setCardData(tempCardData);
-    console.log(cardData);
+
+    setCardIds(copiedCardIds);
+    console.log(cardIds);
     setGameStart(!gameStart);
   }
+
+  useEffect(() => {
+    const tempData = cardIds.map((id) =>
+      fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+        .then((response) => response.json())
+        .then((data) => [data.name, data.sprites.other["official-artwork"].front_default])
+    );
+    Promise.all(tempData).then((data) => setCardData(data));
+  }, [cardIds]);
+
+  console.log(cardData);
 
   function handleResetGame() {
     setGameStart(!gameStart);
@@ -48,10 +61,15 @@ function GeneratePokemonCards() {
     <>
       <h2>Test</h2>
       <div className="card-container">
+        {/* {cardData}
+        {cardIds} */}
         {cardData.map((card) => {
           return (
             <>
-              <div className="card">{card}</div>
+              <div className="card">
+                <img src={card[1]} />
+                {card[0]}
+              </div>
             </>
           );
         })}
