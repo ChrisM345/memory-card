@@ -24,6 +24,8 @@ function GeneratePokemonCards() {
       pokemonIds.splice(pokemonId, 1);
     }
     setCardIds(copiedCardIds);
+
+    setGameStart(true);
   }
 
   //Use the pokeapi to grab Pokemon images and names according to the ID
@@ -35,11 +37,7 @@ function GeneratePokemonCards() {
     );
 
     //Once we go through all the IDs we setCardData and start the game
-    Promise.all(tempData)
-      .then((data) => setCardData(data))
-      .then(() => {
-        if (gameStart == false && cardIds.length > 0) return setGameStart(true);
-      });
+    Promise.all(tempData).then((data) => setCardData(data));
   }, [cardIds]);
 
   function handleResetGame() {
